@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحذير أمني</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+        }
+        
+        .fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        
+        .fullscreen-btn:hover {
+            background: #cc0000;
+        }
+        
+        .warning-container {
+            max-width: 700px;
+            width: 90%;
+            background: #111;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            border: 2px solid #ff0000;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        
+        .warning-icon {
+            font-size: 80px;
+            color: #ff0000;
+            margin-bottom: 20px;
+            animation: shake 0.5s infinite alternate;
+        }
+        
+        h1 {
+            color: #ff0000;
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+        
+        .message {
+            background: #222;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ff0000;
+            text-align: right;
+            line-height: 1.6;
+        }
+        
+        .countdown {
+            font-size: 24px;
+            margin: 20px 0;
+            color: #ff9900;
+        }
+        
+        .fake-button {
+            display: inline-block;
+            background: #ff0000;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .fake-button:hover {
+            background: #cc0000;
+            transform: scale(1.05);
+        }
+        
+        .hacker-text {
+            font-family: monospace;
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: left;
+            direction: ltr;
+            overflow: hidden;
+            white-space: nowrap;
+            border: 1px solid #333;
+            height: 120px;
+            overflow-y: auto;
+        }
+        
+        .reveal {
+            margin-top: 30px;
+            padding: 15px;
+            background: #333;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .reveal-button {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        
+        .reveal-button:hover {
+            background: #555;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 0, 0, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
+        }
+        
+        @keyframes shake {
+            from { transform: translateX(-5px); }
+            to { transform: translateX(5px); }
+        }
+        
+        /* تأثير الكتابة */
+        .typing {
+            overflow: hidden;
+            border-right: 2px solid #ff0000;
+            white-space: nowrap;
+            margin: 0 auto;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #ff0000 }
+        }
+        
+        /* تأثيرات للوضع ملء الشاشة */
+        body.fullscreen-mode {
+            padding: 0;
+        }
+        
+        body.fullscreen-mode .warning-container {
+            max-width: 95%;
+            width: 95%;
+            height: 95vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* رسالة تحميل */
+        .loading-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+            color: #ff0000;
+            font-size: 24px;
+        }
+
+        .loading-message.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- رسالة تحميل -->
+    <div class="loading-message" id="loadingMessage">
+        <div class="warning-icon">⚠️</div>
+        <h2>جاري تحميل النظام الأمني...</h2>
+    </div>
+
+    <button class="fullscreen-btn" onclick="toggleFullscreen()">ملء الشاشة ⛶</button>
+    
+    <div class="warning-container">
+        <div class="warning-icon">⚠️</div>
+        <h1 class="typing">تحذير أمني خطير!</h1>
+        
+        <div class="message">
+            <p>لقد تم اكتشاف نشاط غير مصرح به على حسابك!</p>
+            <p>تم اختراق نظامك في: <span id="date-time"></span></p>
+            <p>عنوان IP للمخترق: <span id="fake-ip"></span></p>
+            <p>الموقع: <span id="fake-location"></span></p>
+        </div>
+        
+        <div class="hacker-text" id="hacker-terminal">
+            <!-- سيتم ملؤها بالنص البرمجي  -->
+        </div>
+        
+        <div class="countdown" id="countdown">إعادة التشغيل في: 00:60</div>
+        
+        <div>
+            <button class="fake-button" onclick="fakeAction()">إصلاح فوري</button>
+            <button class="fake-button" onclick="fakeAction()">مسح الفيروسات</button>
+        </div>
+        
+        <button class="reveal-button" onclick="revealPrank()">كشف الحقيقة</button>
+        
+        <div class="reveal" id="reveal-message">
+            <h3>👿 لقد تم اختراق هاتفك😈 !</h3>
+            <p>تم اختراق حسابك هذا الموقع ضار تماماً .</p>
+            <p>، بياناتك غير آمنة!</p>
+        </div>
+    </div>
+
+    <script>
+        // تعيين الوقت الحالي
+        document.getElementById('date-time').textContent = new Date().toLocaleString('ar-SA');
+        
+        // إنشاء عنوان IP 
+        document.getElementById('fake-ip').textContent = 
+            Math.floor(Math.random() * 255) + "." + 
+            Math.floor(Math.random() * 255) + "." + 
+            Math.floor(Math.random() * 255) + "." + 
+            Math.floor(Math.random() * 255);
+            
+        // 😈😈😈
+        const locations = ["روسيا", "الصين", "أوكرانيا", "البرازيل", "نيجيريا"];
+        document.getElementById('fake-location').textContent = locations[Math.floor(Math.random() * locations.length)];
+        
+        // محاكاة نصوص القرصنة
+        const hackerTexts = [
+            "جاري استخراج البيانات...",
+            "تحميل ملفات النظام...",
+            "اختراق كلمات المرور...",
+            "نسخ ملفات المستخدم...",
+            "تثبيت برمجية خبيثة...",
+            "جمع معلومات الحساب...",
+            "اختراق كاميرا الويب...",
+            "نسخ سجل المتصفح...",
+            "اختراق حسابات التواصل...",
+            "جمع المعلومات المصرفية..."
+        ];
+        
+        const terminal = document.getElementById('hacker-terminal');
+        let textIndex = 0;
+        
+        function addHackerText() {
+            if (textIndex < hackerTexts.length) {
+                const textElement = document.createElement('div');
+                textElement.textContent = `[${new Date().toLocaleTimeString('ar-SA')}] ${hackerTexts[textIndex]}`;
+                textElement.style.color = textIndex % 2 === 0 ? "#00ff00" : "#ff0000";
+                terminal.appendChild(textElement);
+                terminal.scrollTop = terminal.scrollHeight;
+                textIndex++;
+                setTimeout(addHackerText, 1000);
+            }
+        }
+        
+        // بدء العد التنازلي
+        let countdown = 60;
+        const countdownElement = document.getElementById('countdown');
+        
+        function updateCountdown() {
+            const minutes = Math.floor(countdown / 60);
+            const seconds = countdown % 60;
+            countdownElement.textContent = `إعادة التشغيل في: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (countdown > 0) {
+                countdown--;
+                setTimeout(updateCountdown, 1000);
+            } else {
+                countdownElement.textContent = "جارٍ إعادة التشغيل...";
+                setTimeout(() => {
+                    countdown = 60;
+                    updateCountdown();
+                }, 3000);
+            }
+        }
+        
+        // وظيفة للأزرار المزيفة
+        function fakeAction() {
+            alert("لا يمكن تنفيذ الإجراء! النظام معطل.");
+        }
+        
+        //  😈👿😈
+        function revealPrank() {
+            document.getElementById('reveal-message').style.display = 'block';
+        }
+        
+        // وظيفة ملء الشاشة
+        function toggleFullscreen() {
+            const elem = document.documentElement;
+            
+            if (!document.fullscreenElement) {
+                // الدخول إلى وضع ملء الشاشة
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) { /* Safari */
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { /* IE11 */
+                    elem.msRequestFullscreen();
+                }
+                document.body.classList.add('fullscreen-mode');
+            } else {
+                // الخروج من وضع ملء الشاشة
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
+                }
+                document.body.classList.remove('fullscreen-mode');
+            }
+        }
+        
+        // الاستماع لتغيرات وضع ملء الشاشة
+        document.addEventListener('fullscreenchange', exitHandler);
+        document.addEventListener('webkitfullscreenchange', exitHandler);
+        document.addEventListener('mozfullscreenchange', exitHandler);
+        document.addEventListener('MSFullscreenChange', exitHandler);
+        
+        function exitHandler() {
+            if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+                document.body.classList.remove('fullscreen-mode');
+            }
+        }
+        
+        // بدء التأثيرات
+        window.onload = function() {
+            // إخفاء رسالة التحميل
+            document.getElementById('loadingMessage').classList.add('hidden');
+            
+            // تشغيل التأثيرات
+            setTimeout(addHackerText, 1000);
+            updateCountdown();
+            
+            // الدخول التلقائي إلى وضع ملء الشاشة بعد تأخير قصير
+            setTimeout(function() {
+                toggleFullscreen();
+            }, 1000);
+        };
+
+        // محاولة الدخول إلى وضع ملء الشاشة فوراً (قد لا يعمل في بعض المتصفحات بسبب سياسات الأمان)
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(err => {
+                        console.log(`خطأ في ملء الشاشة: ${err.message}`);
+                    });
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
